@@ -1,39 +1,44 @@
 import { GetStaticProps } from 'next';
 import Head from 'next/head'
 import React from 'react'
+import { RichText } from 'prismic-dom';
 import Prismic from '@prismicio/client';
-import styles from './styles.module.scss'
 import { getPrismicClient } from '../../services/prismic';
+import styles from './styles.module.scss'
 
-export default function Posts() {
-    return(
+
+interface Post {
+    slug: string;
+    title: string;
+    excerpt: string;
+    updatedAt: string;
+  }
+
+  interface PostsProps {
+    posts: Post[];
+  }
+
+export default function Posts({ posts }: PostsProps) {
+    return (
         <>
             <Head>
                 <title>Posts | Ignews</title>
             </Head>
-        
+
             <main className={styles.container}>
                 <div className={styles.posts}>
-                    <a>
-                        <time>What is Lorem Ipsum?</time>
-                        <strong>What is Lorem Ipsum?</strong>
-                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. </p>
-                    </a>
-                    <a>
-                        <time>What is Lorem Ipsum?</time>
-                        <strong>What is Lorem Ipsum?</strong>
-                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. </p>
-                    </a>
-                    <a>
-                        <time>What is Lorem Ipsum?</time>
-                        <strong>What is Lorem Ipsum?</strong>
-                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. </p>
-                    </a>
+                    {posts.map(post => (
+                        <a key={post.slug} href='#'>
+                            <time>{post.updatedAt}</time>
+                            <strong>{post.title}</strong>
+                            <p>{post.excerpt}</p>
+                        </a>
+                    ))}
                 </div>
             </main>
         </>
     )
-} 
+}
 
 export const getStaticProps: GetStaticProps = async () => {
     const prismic = getPrismicClient()
@@ -45,8 +50,23 @@ export const getStaticProps: GetStaticProps = async () => {
         pageSize: 100,
     })    
     
-    console.log(response)
+    const posts = response.results.map(post => {
+        return {
+          slug: post.uid,
+          title: RichText.asText(post.data.title),
+          excerpt: post.data.content
+            .find(content => content.type === 'paragraph')?.text ?? '',
+          updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          })
+        };
+      });
+
     return {
-        props: {}
+        props: {
+            posts,
+        }
     }
 }
