@@ -34,12 +34,12 @@
                 color: var(--white);
             }
 
-            &:active {
+            &.active {
                 color: var(--white);
                 font-weight: bold;
             }
 
-            &:active::after {
+            &.active::after {
                 content: '';
                 height: 3px;
                 border-radius: 3px 3px 0 0;
@@ -48,7 +48,6 @@
                 bottom: 1px;
                 left: 0;
                 background: var(--yellow-500);
-
             }
         }
     }
