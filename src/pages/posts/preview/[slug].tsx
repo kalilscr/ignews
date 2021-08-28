@@ -59,7 +59,7 @@ export default function PostPreview({ post }: PostPreviewProps) {
 
 export const getStaticPaths = () => {
     return {
-        paths: [],
+        paths: [], // quais previews de posts eu quero gerar durante a build. array vazio = todos os posts sejam carregados conforme a pessoa faz o primeiro acesso
         fallback: 'blocking'
     }
 }
@@ -86,6 +86,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     return {
         props: {
             post,
-        }
+        },
+        revalidate: 60 * 30, // 30 minutos
     }
 }
